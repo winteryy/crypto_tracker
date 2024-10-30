@@ -1,4 +1,4 @@
-package com.winteryy.cryptotracker.util
+package com.winteryy.cryptotracker.core.domain.util
 
 typealias DomainError = Error
 
