@@ -2,7 +2,7 @@ package com.winteryy.cryptotracker.crypto.presentation.models
 
 import androidx.annotation.DrawableRes
 import com.winteryy.cryptotracker.crypto.domain.Coin
-import com.winteryy.cryptotracker.util.getDrawableIdForCoin
+import com.winteryy.cryptotracker.core.presentation.util.getDrawableIdForCoin
 import java.text.NumberFormat
 import java.util.Locale
 

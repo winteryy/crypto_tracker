@@ -1,4 +1,4 @@
-package com.winteryy.cryptotracker.util
+package com.winteryy.cryptotracker.core.presentation.util
 
 import com.winteryy.cryptotracker.R
 
