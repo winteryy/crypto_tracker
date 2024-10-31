@@ -2,7 +2,7 @@
     <string name="app_name">CryptoTracker</string>
     <string name="error_request_timeout">요청 시간이 초과되었습니다.</string>
     <string name="error_too_many_requests">요청량이 너무 많습니다.</string>
-    <string name="error_no_internet">서버에 연결할 수 없습니다. 인터넷에 연결을 확인해주세요..</string>
+    <string name="error_no_internet">서버에 연결할 수 없습니다. 인터넷에 연결을 확인해주세요.</string>
     <string name="error_unknown">작업에 실패했습니다. 잠시 후에 다시 시도해주세요.</string>
     <string name="error_serialization">직렬화 혹은 역직렬화에 실패했습니다.</string>
 </resources>
