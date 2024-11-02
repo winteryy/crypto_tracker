@@ -14,8 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,10 +79,10 @@ fun LineChart(
         modifier = modifier
             .fillMaxSize()
     ) {
-        val minLabelSpacingY = style.minYLabelSpacing.roundToPx()
+        val minLabelSpacingYPx = style.minYLabelSpacing.toPx()
         val verticalPaddingPx = style.verticalPadding.roundToPx()
-        val horizontalPaddingPx = style.horizontalPadding.roundToPx()
-        val xAxisLabelSpacingPx = style.xAxisLabelSpacing.roundToPx()
+        val horizontalPaddingPx = style.horizontalPadding.toPx()
+        val xAxisLabelSpacingPx = style.xAxisLabelSpacing.toPx()
 
         val xLabelTextLayoutResults = visibleDataPoints.map {
             measurer.measure(
@@ -96,10 +98,33 @@ fun LineChart(
         val viewPortHeightPx = size.height -
                 (maxXLabelHeight + 2 * verticalPaddingPx
                         + xLabelLineHeight + xAxisLabelSpacingPx)
+
+        // y label calc
+        val labelViewPortHeightPx = viewPortHeightPx + xLabelLineHeight
+        val labelCountExcludingLastLabel =
+            ((labelViewPortHeightPx / (xLabelLineHeight + minLabelSpacingYPx))).toInt()
+
+        val valueIncrement = (maxYValue - minYValue) / labelCountExcludingLastLabel
+
+        val yLabels = (0..labelCountExcludingLastLabel).map {
+            ValueLabel(
+                value = maxYValue - (valueIncrement * it),
+                unit = unit
+            )
+        }
+
+        val yLabelTextLayoutResults = yLabels.map {
+            measurer.measure(
+                text = it.formatted(),
+                style = textStyle
+            )
+        }
+        val maxYLabelWidth = yLabelTextLayoutResults.maxOfOrNull { it.size.width } ?: 0
+
         val viewPortTopY = verticalPaddingPx + xLabelLineHeight + 10f
         val viewPortRightX = size.width
         val viewPortBottomY = viewPortTopY + viewPortHeightPx
-        val viewPortLeftX = 2f * horizontalPaddingPx
+        val viewPortLeftX = 2f * horizontalPaddingPx + maxYLabelWidth
         val viewPort = Rect(
             left = viewPortLeftX,
             top = viewPortTopY,
@@ -112,10 +137,47 @@ fun LineChart(
             topLeft = viewPort.topLeft,
             size = viewPort.size
         )
+
+        xLabelWidth = maxXLabelWidth + xAxisLabelSpacingPx
+        xLabelTextLayoutResults.forEachIndexed { index, result ->
+            drawText(
+                textLayoutResult = result,
+                topLeft = Offset(
+                    x = viewPortLeftX + xAxisLabelSpacingPx / 2f +
+                            xLabelWidth * index,
+                    y = viewPortBottomY + xAxisLabelSpacingPx
+                ),
+                color = if(index == selectedDataPointIndex) {
+                    style.selectedColor
+                } else {
+                    style.unselectedColor
+                }
+            )
+        }
+
+        val heightRequiredForLabels = xLabelLineHeight *
+                (labelCountExcludingLastLabel + 1)
+        val remainingHeightForLabels = labelViewPortHeightPx - heightRequiredForLabels
+        val spaceBetweenLabels = remainingHeightForLabels / labelCountExcludingLastLabel
+
+        yLabelTextLayoutResults.forEachIndexed { index, result ->
+            val x = horizontalPaddingPx + maxYLabelWidth - result.size.width.toFloat()
+            val y = viewPortTopY +
+                    index * (xLabelLineHeight + spaceBetweenLabels) -
+                    xLabelLineHeight / 2f
+            drawText(
+                textLayoutResult = result,
+                topLeft = Offset(
+                    x = x,
+                    y = y
+                ),
+                color = style.unselectedColor
+            )
+        }
     }
 }
 
-@Preview
+@Preview(widthDp = 1000)
 @Composable
 private fun LineChartPreview() {
     CryptoTrackerTheme {
